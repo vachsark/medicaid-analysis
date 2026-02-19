@@ -1,4 +1,4 @@
-import { readJsonFile } from "@/lib/data";
+import { readJsonFile } from "@/lib/data-server";
 import type { ProviderProfile } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";

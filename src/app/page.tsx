@@ -1,4 +1,4 @@
-import { readJsonFile } from "@/lib/data";
+import { readJsonFile } from "@/lib/data-server";
 import type { NationalData } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import { StatCard } from "@/components/ui/StatCard";
