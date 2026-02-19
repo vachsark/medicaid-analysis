@@ -62,6 +62,7 @@ export function StateDetailCharts({ data }: Props) {
           rowKey={(r) => r.npi}
           onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
           defaultSortKey="total_paid"
+          exportFilename={`${data.name.toLowerCase().replace(/\s+/g, "-")}-providers`}
           columns={[
             {
               key: "name",
@@ -113,6 +114,7 @@ export function StateDetailCharts({ data }: Props) {
           rowKey={(r) => r.code}
           onRowClick={(r) => router.push(`/procedures/${r.code}/`)}
           defaultSortKey="total_paid"
+          exportFilename={`${data.name.toLowerCase().replace(/\s+/g, "-")}-procedures`}
           columns={[
             {
               key: "code",

@@ -21,14 +21,14 @@ function CustomLegend() {
           className="h-3 w-3 rounded-sm"
           style={{ backgroundColor: CHART_COLORS.accent }}
         />
-        <span className="text-gray-600">Growth</span>
+        <span className="text-gray-600 dark:text-gray-400">Growth</span>
       </div>
       <div className="flex items-center gap-1.5">
         <div
           className="h-3 w-3 rounded-sm"
           style={{ backgroundColor: CHART_COLORS.danger }}
         />
-        <span className="text-gray-600">Decline</span>
+        <span className="text-gray-600 dark:text-gray-400">Decline</span>
       </div>
     </div>
   );

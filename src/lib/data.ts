@@ -5,8 +5,10 @@ import type {
   StateDetail,
   ProviderProfile,
   ProviderSearchEntry,
+  ProviderAnomaly,
   ProcedureIndexEntry,
   ProcedureProfile,
+  ProcedureCategory,
 } from "./types";
 
 const BASE = "/data";
@@ -24,14 +26,18 @@ export const fetchStatesIndex = () =>
 export const fetchStateDetail = (code: string) =>
   fetchJson<StateDetail>(`/states/${code}.json`);
 export const fetchProviderProfiles = () =>
-  fetchJson<ProviderProfile[]>("/providers/top1000.json");
+  fetchJson<ProviderProfile[]>("/providers/top5000.json");
 export const fetchProviderSearch = (state?: string) =>
   fetchJson<ProviderSearchEntry[]>(
     state
       ? `/providers/search/${state}.json`
       : "/providers/search/top5000.json",
   );
+export const fetchProviderAnomalies = () =>
+  fetchJson<ProviderAnomaly[]>("/providers/anomalies.json");
 export const fetchProceduresIndex = () =>
   fetchJson<ProcedureIndexEntry[]>("/procedures/_index.json");
+export const fetchProcedureCategories = () =>
+  fetchJson<ProcedureCategory[]>("/procedures/categories.json");
 export const fetchProcedureProfile = (code: string) =>
   fetchJson<ProcedureProfile>(`/procedures/${code}.json`);

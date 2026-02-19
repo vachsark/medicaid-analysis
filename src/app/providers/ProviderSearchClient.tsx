@@ -62,6 +62,7 @@ export function ProviderSearchClient() {
             onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
             defaultSortKey="total_paid"
             pageSize={25}
+            exportFilename="providers"
             columns={[
               {
                 key: "name",

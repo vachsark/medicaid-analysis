@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { StateIndexEntry } from "@/lib/types";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
 import { DataTable } from "@/components/ui/DataTable";
@@ -48,7 +49,7 @@ export function StatesOverview({ states }: Props) {
   return (
     <div className="space-y-8">
       <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-        <div className="mb-3 flex flex-wrap gap-2 sm:mb-4">
+        <div className="mb-3 flex flex-wrap items-center gap-2 sm:mb-4">
           {(
             [
               ["total_paid", "Total Spending"],
@@ -68,6 +69,12 @@ export function StatesOverview({ states }: Props) {
               {label}
             </button>
           ))}
+          <Link
+            href="/states/compare/"
+            className="ml-auto rounded-full bg-gray-900 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+          >
+            Compare States
+          </Link>
         </div>
         <USChoroplethMap
           data={mapData}
@@ -81,6 +88,7 @@ export function StatesOverview({ states }: Props) {
         onRowClick={(r) => router.push(`/states/${r.code}/`)}
         defaultSortKey="total_paid"
         pageSize={60}
+        exportFilename="states-overview"
         columns={[
           {
             key: "name",

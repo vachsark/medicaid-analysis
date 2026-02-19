@@ -136,7 +136,11 @@ export interface ProviderProfile {
   total_paid: number;
   total_claims: number;
   distinct_procedures: number;
+  avg_per_claim: number;
+  avg_per_claim_zscore: number | null;
+  classification_avg_per_claim: number | null;
   yearly: YearlyDataPoint[];
+  monthly: MonthlyDataPoint[] | null;
   top_procedures: {
     code: string;
     description: string;
@@ -158,13 +162,35 @@ export interface ProviderSearchEntry {
 export interface ProcedureIndexEntry {
   code: string;
   description: string;
+  category: string;
   total_paid: number;
   total_claims: number;
+}
+
+export interface ProcedureCategory {
+  category: string;
+  total_paid: number;
+  total_claims: number;
+  procedure_count: number;
+}
+
+export interface ProviderAnomaly {
+  npi: string;
+  name: string;
+  state: string;
+  city: string;
+  classification: string;
+  total_paid: number;
+  total_claims: number;
+  avg_per_claim: number;
+  classification_avg_per_claim: number;
+  zscore: number;
 }
 
 export interface ProcedureProfile {
   code: string;
   description: string;
+  category: string;
   total_paid: number;
   total_claims: number;
   provider_count: number;

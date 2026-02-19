@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 interface Column<T> {
   key: string;
@@ -21,6 +21,15 @@ interface DataTableProps<T> {
   defaultSortDir?: "asc" | "desc";
   onRowClick?: (row: T) => void;
   rowKey: (row: T) => string;
+  /** When provided, shows an "Export CSV" button and uses this as the download filename (without .csv) */
+  exportFilename?: string;
+}
+
+function escapeCsvField(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
 }
 
 export function DataTable<T>({
@@ -31,6 +40,7 @@ export function DataTable<T>({
   defaultSortDir = "desc",
   onRowClick,
   rowKey,
+  exportFilename,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState(defaultSortKey ?? columns[0]?.key);
@@ -64,18 +74,44 @@ export function DataTable<T>({
     setPage(0);
   }
 
+  const handleExport = useCallback(() => {
+    if (!exportFilename) return;
+    const headers = columns.map((c) => c.label);
+    const rows = sorted.map((row) =>
+      columns.map((col) => {
+        const raw = (row as Record<string, unknown>)[col.key];
+        if (col.sortKey) {
+          const v = col.sortKey(row);
+          return escapeCsvField(String(v));
+        }
+        return escapeCsvField(String(raw ?? ""));
+      }),
+    );
+    const csv = [
+      headers.map(escapeCsvField).join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${exportFilename}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [exportFilename, sorted, columns]);
+
   return (
     <div>
-      <div className="-mx-4 overflow-x-auto sm:mx-0 sm:rounded-lg sm:border sm:border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="-mx-4 overflow-x-auto sm:mx-0 sm:rounded-lg sm:border sm:border-gray-200 dark:sm:border-gray-800">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-gray-500 sm:px-4 sm:py-3 ${
+                  className={`px-3 py-2.5 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 sm:px-4 sm:py-3 ${
                     col.align === "right" ? "text-right" : "text-left"
-                  } ${col.sortKey ? "cursor-pointer select-none hover:text-gray-900" : ""} ${col.className ?? ""} ${col.hideOnMobile ? "hidden sm:table-cell" : ""}`}
+                  } ${col.sortKey ? "cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100" : ""} ${col.className ?? ""} ${col.hideOnMobile ? "hidden sm:table-cell" : ""}`}
                   onClick={() => col.sortKey && handleSort(col.key)}
                 >
                   {col.label}
@@ -88,11 +124,15 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950">
             {pageData.map((row) => (
               <tr
                 key={rowKey(row)}
-                className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+                className={
+                  onRowClick
+                    ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
+                    : ""
+                }
                 onClick={() => onRowClick?.(row)}
               >
                 {columns.map((col) => (
@@ -116,27 +156,48 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
-      {totalPages > 1 && (
-        <div className="mt-3 flex items-center justify-between px-1 text-sm text-gray-600">
+      {(totalPages > 1 || exportFilename) && (
+        <div className="mt-3 flex items-center justify-between px-1 text-sm text-gray-600 dark:text-gray-400">
           <span>
-            {page * pageSize + 1}-
-            {Math.min((page + 1) * pageSize, sorted.length)} of {sorted.length}
+            {totalPages > 1 ? (
+              <>
+                {page * pageSize + 1}-
+                {Math.min((page + 1) * pageSize, sorted.length)} of{" "}
+                {sorted.length}
+              </>
+            ) : (
+              <>{sorted.length} rows</>
+            )}
           </span>
           <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="rounded border px-3 py-1 disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page >= totalPages - 1}
-              className="rounded border px-3 py-1 disabled:opacity-50"
-            >
-              Next
-            </button>
+            {exportFilename && (
+              <button
+                onClick={handleExport}
+                className="rounded border px-3 py-1 text-blue-600 hover:bg-blue-50 dark:border-gray-700 dark:text-blue-400 dark:hover:bg-gray-800"
+              >
+                Export CSV
+              </button>
+            )}
+            {totalPages > 1 && (
+              <>
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="rounded border px-3 py-1 disabled:opacity-50 dark:border-gray-700"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() =>
+                    setPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
+                  disabled={page >= totalPages - 1}
+                  className="rounded border px-3 py-1 disabled:opacity-50 dark:border-gray-700"
+                >
+                  Next
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

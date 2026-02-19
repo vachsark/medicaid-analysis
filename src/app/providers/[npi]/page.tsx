@@ -8,7 +8,7 @@ import { ProviderDetailCharts } from "./ProviderDetailCharts";
 
 export async function generateStaticParams() {
   const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top1000.json",
+    "/providers/top5000.json",
   );
   return profiles.map((p) => ({ npi: p.npi }));
 }
@@ -20,7 +20,7 @@ export async function generateMetadata({
 }) {
   const { npi } = await params;
   const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top1000.json",
+    "/providers/top5000.json",
   );
   const provider = profiles.find((p) => p.npi === npi);
   return { title: provider?.name ?? `Provider ${npi}` };
@@ -33,7 +33,7 @@ export default async function ProviderDetailPage({
 }) {
   const { npi } = await params;
   const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top1000.json",
+    "/providers/top5000.json",
   );
   const provider = profiles.find((p) => p.npi === npi);
 
@@ -50,7 +50,7 @@ export default async function ProviderDetailPage({
           ]}
         />
         <p className="text-gray-500">
-          Only the top 1,000 providers have detailed profiles. Use the{" "}
+          Only the top 5,000 providers have detailed profiles. Use the{" "}
           <a href="/providers/" className="text-blue-600 underline">
             search page
           </a>{" "}

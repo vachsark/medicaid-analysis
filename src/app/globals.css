@@ -11,3 +11,35 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
 }
+
+.dark {
+  --color-background: #030712;
+  --color-foreground: #f3f4f6;
+}
+
+/* Dark mode Recharts overrides */
+.dark .recharts-default-tooltip {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .recharts-tooltip-label {
+  color: #f3f4f6 !important;
+}
+
+.dark .recharts-tooltip-item {
+  color: #d1d5db !important;
+}
+
+.dark .recharts-cartesian-axis-tick text {
+  fill: #9ca3af !important;
+}
+
+.dark .recharts-legend-item-text {
+  color: #9ca3af !important;
+}
+
+.dark .recharts-cartesian-grid line {
+  stroke: #374151 !important;
+}

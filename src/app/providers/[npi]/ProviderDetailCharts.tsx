@@ -20,15 +20,49 @@ export function ProviderDetailCharts({ provider }: Props) {
     value: y.total_paid,
   }));
 
+  const monthlyChart = provider.monthly?.map((m) => ({
+    label: m.month,
+    value: m.total_paid,
+  }));
+
   return (
     <div className="space-y-10">
+      {/* Anomaly badge */}
+      {provider.avg_per_claim_zscore !== null &&
+        provider.avg_per_claim_zscore > 2 && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>Outlier Alert:</strong> This provider&apos;s average cost
+              per claim ({formatCurrency(provider.avg_per_claim)}) is{" "}
+              {provider.avg_per_claim_zscore.toFixed(1)}x standard deviations
+              above the average for {provider.classification} providers (
+              {formatCurrency(provider.classification_avg_per_claim ?? 0)}).
+            </p>
+          </div>
+        )}
+
       {yearlyChart.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Yearly Spending Trend
           </h2>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <SpendingTrendChart data={yearlyChart} />
+          </div>
+        </section>
+      )}
+
+      {monthlyChart && monthlyChart.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Monthly Spending Trend
+          </h2>
+          <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+            <SpendingTrendChart
+              data={monthlyChart}
+              height={250}
+              seriesLabel="Monthly Spending"
+            />
           </div>
         </section>
       )}
