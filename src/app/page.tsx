@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { readJsonFile } from "@/lib/data-server";
 import type { NationalData } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/lib/format";
@@ -73,9 +74,31 @@ export default async function HomePage() {
             value={formatNumber(data.headline.total_providers, true)}
           />
           <StatCard
-            label="Data Rows"
-            value={formatNumber(data.headline.total_rows, true)}
+            label="States & Territories"
+            value="54"
+            subtitle="50 states + DC + territories"
           />
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-3 sm:mb-8">
+          <Link
+            href="/states/"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            Explore by State
+          </Link>
+          <Link
+            href="/providers/"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+          >
+            Search Providers
+          </Link>
+          <Link
+            href="/procedures/"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+          >
+            Browse Procedures
+          </Link>
         </div>
 
         <NationalCharts data={data} />

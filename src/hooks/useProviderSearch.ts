@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Fuse from "fuse.js";
 import type { ProviderSearchEntry } from "@/lib/types";
 
@@ -16,34 +16,43 @@ export function useProviderSearch() {
   const [stateFilter, setStateFilter] = useState<string>("");
   const [allData, setAllData] = useState<ProviderSearchEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadedState, setLoadedState] = useState<string>("");
-
-  const loadData = useCallback(
-    async (state: string) => {
-      if (state === loadedState && allData.length > 0) return;
-      setLoading(true);
-      try {
-        const path = state
-          ? `/data/providers/search/${state}.json`
-          : "/data/providers/search/top5000.json";
-        const res = await fetch(path);
-        if (!res.ok) throw new Error(`Failed to load ${path}`);
-        const data = await res.json();
-        setAllData(data);
-        setLoadedState(state);
-      } catch (e) {
-        console.error("Failed to load provider search data:", e);
-        setAllData([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [loadedState, allData.length],
-  );
+  const loadedStateRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    loadData(stateFilter);
-  }, [stateFilter, loadData]);
+    // Skip if already loaded for this state
+    if (stateFilter === loadedStateRef.current) return;
+
+    // Abort any in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const path = stateFilter
+      ? `/data/providers/search/${stateFilter}.json`
+      : "/data/providers/search/top5000.json";
+
+    setLoading(true);
+    fetch(path, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load ${path}`);
+        return res.json();
+      })
+      .then((data) => {
+        setAllData(data);
+        loadedStateRef.current = stateFilter;
+      })
+      .catch((e) => {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to load provider search data:", e);
+        setAllData([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [stateFilter]);
 
   const fuse = useMemo(
     () => (allData.length > 0 ? new Fuse(allData, FUSE_OPTIONS) : null),

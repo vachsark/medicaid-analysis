@@ -2,10 +2,10 @@
 
 import { memo, useMemo } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { FIPS_TO_STATE } from "@/lib/states";
+import { FIPS_TO_STATE, getStateName } from "@/lib/states";
 import { formatCurrency } from "@/lib/format";
 
-const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+const GEO_URL = "/data/states-10m.json";
 
 interface StateData {
   code: string;
@@ -46,37 +46,59 @@ function USChoroplethMapInner({
   }
 
   return (
-    <ComposableMap projection="geoAlbersUsa" width={800} height={500}>
-      <Geographies geography={GEO_URL}>
-        {({ geographies }) =>
-          geographies.map((geo) => {
-            const fips = geo.id;
-            const stateCode = FIPS_TO_STATE[fips];
-            const value = stateCode ? dataMap.get(stateCode) : undefined;
+    <div
+      role="img"
+      aria-label={`US choropleth map showing ${valueLabel} by state`}
+    >
+      <ComposableMap projection="geoAlbersUsa" width={800} height={500}>
+        <Geographies geography={GEO_URL}>
+          {({ geographies }) =>
+            geographies.map((geo) => {
+              const fips = geo.id;
+              const stateCode = FIPS_TO_STATE[fips];
+              const value = stateCode ? dataMap.get(stateCode) : undefined;
+              const stateName = stateCode ? getStateName(stateCode) : undefined;
 
-            return (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill={getColor(value)}
-                stroke="#fff"
-                strokeWidth={0.5}
-                style={{
-                  default: { outline: "none" },
-                  hover: {
-                    outline: "none",
-                    fill: "#93c5fd",
-                    cursor: "pointer",
-                  },
-                  pressed: { outline: "none" },
-                }}
-                onClick={() => stateCode && onStateClick?.(stateCode)}
-              />
-            );
-          })
-        }
-      </Geographies>
-    </ComposableMap>
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  fill={getColor(value)}
+                  stroke="#fff"
+                  strokeWidth={0.5}
+                  aria-label={
+                    stateName
+                      ? `${stateName}: ${value !== undefined ? formatValue(value) : "no data"}`
+                      : undefined
+                  }
+                  tabIndex={stateCode && onStateClick ? 0 : undefined}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (
+                      stateCode &&
+                      onStateClick &&
+                      (e.key === "Enter" || e.key === " ")
+                    ) {
+                      e.preventDefault();
+                      onStateClick(stateCode);
+                    }
+                  }}
+                  style={{
+                    default: { outline: "none" },
+                    hover: {
+                      outline: "none",
+                      fill: "#93c5fd",
+                      cursor: "pointer",
+                    },
+                    pressed: { outline: "none" },
+                  }}
+                  onClick={() => stateCode && onStateClick?.(stateCode)}
+                />
+              );
+            })
+          }
+        </Geographies>
+      </ComposableMap>
+    </div>
   );
 }
 

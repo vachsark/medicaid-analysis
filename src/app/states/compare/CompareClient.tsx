@@ -125,14 +125,14 @@ export function CompareClient({ states }: Props) {
   return (
     <div className="space-y-8">
       {/* State selector */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <label className="mb-2 block text-sm font-medium text-gray-700">
+      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Select states to compare (2-4)
         </label>
         <div ref={dropdownRef} className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full flex-wrap items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex w-full flex-wrap items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:border-gray-500"
           >
             {selectedCodes.length === 0 ? (
               <span className="text-gray-400">Select states...</span>
@@ -176,7 +176,7 @@ export function CompareClient({ states }: Props) {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
               {sortedStates.map((s) => {
                 const isSelected = selectedCodes.includes(s.code);
                 const disabled =
@@ -188,10 +188,10 @@ export function CompareClient({ states }: Props) {
                     disabled={disabled}
                     className={`flex w-full items-center justify-between px-3 py-1.5 text-left text-sm ${
                       disabled
-                        ? "cursor-not-allowed text-gray-300"
+                        ? "cursor-not-allowed text-gray-300 dark:text-gray-600"
                         : isSelected
-                          ? "bg-blue-50 font-medium text-blue-700"
-                          : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-blue-50 font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                          : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
                     <span>
@@ -228,7 +228,7 @@ export function CompareClient({ states }: Props) {
         <>
           {/* Side-by-side stat cards */}
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900 sm:mb-4 sm:text-xl">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-xl">
               Key Metrics
             </h2>
             <div className="overflow-x-auto">
@@ -270,10 +270,10 @@ export function CompareClient({ states }: Props) {
 
           {/* Overlaid spending trend */}
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900 sm:mb-4 sm:text-xl">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-xl">
               Yearly Spending Trend
             </h2>
-            <div className="rounded-lg border border-gray-200 bg-white p-2 sm:p-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-2 sm:p-4 dark:border-gray-800 dark:bg-gray-900">
               <ResponsiveContainer width="100%" height={350}>
                 <LineChart
                   data={trendData}
@@ -323,10 +323,10 @@ export function CompareClient({ states }: Props) {
 
           {/* Total spending bar chart */}
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900 sm:mb-4 sm:text-xl">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-xl">
               Total Spending Comparison
             </h2>
-            <div className="rounded-lg border border-gray-200 bg-white p-2 sm:p-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-2 sm:p-4 dark:border-gray-800 dark:bg-gray-900">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart
                   data={barData}
@@ -373,14 +373,14 @@ export function CompareClient({ states }: Props) {
 
           {/* Comparison table */}
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-gray-900 sm:mb-4 sm:text-xl">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-xl">
               Detailed Comparison
             </h2>
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200 bg-white text-sm">
-                <thead className="bg-gray-50">
+            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+              <table className="min-w-full divide-y divide-gray-200 bg-white text-sm dark:divide-gray-800 dark:bg-gray-950">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-600">
+                    <th className="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-400">
                       Metric
                     </th>
                     {selected.map((d) => (
@@ -394,84 +394,160 @@ export function CompareClient({ states }: Props) {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   <tr>
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       Total Spending
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         {formatCurrency(d.headline.total_paid, true)}
                       </td>
                     ))}
                   </tr>
-                  <tr className="bg-gray-50/50">
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                  <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       Total Claims
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         {formatNumber(d.headline.total_claims, true)}
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       Providers
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         {formatNumber(d.headline.provider_count)}
                       </td>
                     ))}
                   </tr>
-                  <tr className="bg-gray-50/50">
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                  <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       Avg Cost/Claim
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         {formatCurrency(d.headline.avg_per_claim)}
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       National Rank
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         #{d.headline.national_rank}
                       </td>
                     ))}
                   </tr>
-                  <tr className="bg-gray-50/50">
-                    <td className="px-4 py-2.5 font-medium text-gray-700">
+                  <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
                       % of National
                     </td>
                     {selected.map((d) => (
                       <td
                         key={d.code}
-                        className="px-4 py-2.5 text-right text-gray-900"
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
                       >
                         {d.headline.national_pct}%
                       </td>
                     ))}
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
+                      Managed Care %
+                    </td>
+                    {selected.map((d) => (
+                      <td
+                        key={d.code}
+                        className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
+                      >
+                        {d.supplementary?.managed_care_pct != null
+                          ? `${d.supplementary.managed_care_pct.toFixed(0)}%`
+                          : "—"}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
+                      ACA Expansion
+                    </td>
+                    {selected.map((d) => (
+                      <td
+                        key={d.code}
+                        className={`px-4 py-2.5 text-right ${
+                          d.supplementary?.expanded === true
+                            ? "text-green-600"
+                            : d.supplementary?.expanded === false
+                              ? "text-red-600"
+                              : "text-gray-400"
+                        }`}
+                      >
+                        {d.supplementary?.expanded === true
+                          ? `Yes${d.supplementary.expansion_year ? ` (${d.supplementary.expansion_year})` : ""}`
+                          : d.supplementary?.expanded === false
+                            ? "No"
+                            : "—"}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
+                      Enrollment (Latest)
+                    </td>
+                    {selected.map((d) => {
+                      const trend = d.supplementary?.enrollment_trend;
+                      const latest = trend?.length
+                        ? trend[trend.length - 1]?.enrollment
+                        : null;
+                      return (
+                        <td
+                          key={d.code}
+                          className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
+                        >
+                          {latest != null ? formatNumber(latest, true) : "—"}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                    <td className="px-4 py-2.5 font-medium text-gray-700 dark:text-gray-300">
+                      FFS $/Enrollee
+                    </td>
+                    {selected.map((d) => {
+                      const trend = d.supplementary?.enrollment_trend;
+                      const latest = trend?.length
+                        ? trend[trend.length - 1]?.per_enrollee
+                        : null;
+                      return (
+                        <td
+                          key={d.code}
+                          className="px-4 py-2.5 text-right text-gray-900 dark:text-gray-100"
+                        >
+                          {latest != null ? formatCurrency(latest) : "—"}
+                        </td>
+                      );
+                    })}
                   </tr>
                 </tbody>
               </table>

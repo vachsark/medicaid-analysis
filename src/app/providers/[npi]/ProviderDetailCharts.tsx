@@ -25,6 +25,8 @@ export function ProviderDetailCharts({ provider }: Props) {
     value: m.total_paid,
   }));
 
+  const medicare = provider.medicare;
+
   return (
     <div className="space-y-10">
       {/* Anomaly badge */}
@@ -40,6 +42,55 @@ export function ProviderDetailCharts({ provider }: Props) {
             </p>
           </div>
         )}
+
+      {/* Medicare Crosswalk */}
+      {medicare && (
+        <section>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Medicare Comparison (2023)
+          </h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Medicare Payment
+              </div>
+              <div className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                {formatCurrency(medicare.payment, true)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Medicaid Payment
+              </div>
+              <div className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                {formatCurrency(provider.total_paid, true)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Medicare Beneficiaries
+              </div>
+              <div className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                {formatNumber(medicare.beneficiaries, true)}
+              </div>
+            </div>
+            {medicare.dual_eligible != null && (
+              <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Dual-Eligible
+                </div>
+                <div className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+                  {formatNumber(medicare.dual_eligible, true)}
+                </div>
+              </div>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Medicare data from CMS Physician &amp; Other Practitioners PUF
+            (2023). Medicare type: {medicare.provider_type}.
+          </p>
+        </section>
+      )}
 
       {yearlyChart.length > 0 && (
         <section>
@@ -69,7 +120,7 @@ export function ProviderDetailCharts({ provider }: Props) {
 
       {provider.top_procedures.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Top Procedures
           </h2>
           <DataTable<ProcEntry>

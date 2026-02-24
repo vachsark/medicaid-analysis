@@ -113,6 +113,23 @@ export function DataTable<T>({
                     col.align === "right" ? "text-right" : "text-left"
                   } ${col.sortKey ? "cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100" : ""} ${col.className ?? ""} ${col.hideOnMobile ? "hidden sm:table-cell" : ""}`}
                   onClick={() => col.sortKey && handleSort(col.key)}
+                  onKeyDown={(e) => {
+                    if (col.sortKey && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault();
+                      handleSort(col.key);
+                    }
+                  }}
+                  tabIndex={col.sortKey ? 0 : undefined}
+                  role={col.sortKey ? "button" : undefined}
+                  aria-sort={
+                    sortKey === col.key
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : col.sortKey
+                        ? "none"
+                        : undefined
+                  }
                 >
                   {col.label}
                   {sortKey === col.key && (
@@ -130,10 +147,22 @@ export function DataTable<T>({
                 key={rowKey(row)}
                 className={
                   onRowClick
-                    ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
+                    ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 focus-within:bg-gray-50 dark:focus-within:bg-gray-900"
                     : ""
                 }
                 onClick={() => onRowClick?.(row)}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? "button" : undefined}
               >
                 {columns.map((col) => (
                   <td

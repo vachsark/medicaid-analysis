@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import type { ProcedureIndexEntry, ProcedureCategory } from "@/lib/types";
@@ -16,30 +16,25 @@ const FUSE_OPTIONS = {
   minMatchCharLength: 2,
 };
 
-export function ProcedureSearchClient() {
+interface Props {
+  initialProcedures: ProcedureIndexEntry[];
+  initialCategories: ProcedureCategory[];
+}
+
+export function ProcedureSearchClient({
+  initialProcedures,
+  initialCategories,
+}: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [allData, setAllData] = useState<ProcedureIndexEntry[]>([]);
-  const [categories, setCategories] = useState<ProcedureCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      fetch("/data/procedures/_index.json").then((r) => r.json()),
-      fetch("/data/procedures/categories.json").then((r) => r.json()),
-    ])
-      .then(([procs, cats]) => {
-        setAllData(procs);
-        setCategories(cats);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
 
   const fuse = useMemo(
-    () => (allData.length > 0 ? new Fuse(allData, FUSE_OPTIONS) : null),
-    [allData],
+    () =>
+      initialProcedures.length > 0
+        ? new Fuse(initialProcedures, FUSE_OPTIONS)
+        : null,
+    [initialProcedures],
   );
 
   const results = useMemo(() => {
@@ -47,33 +42,25 @@ export function ProcedureSearchClient() {
     if (query.trim() && fuse) {
       base = fuse.search(query, { limit: 200 }).map((r) => r.item);
     } else {
-      base = allData;
+      base = initialProcedures;
     }
     if (categoryFilter) {
       base = base.filter((p) => p.category === categoryFilter);
     }
     return base.slice(0, 100);
-  }, [query, categoryFilter, allData, fuse]);
-
-  if (loading) {
-    return (
-      <div className="py-8 text-center text-gray-500">
-        Loading procedures...
-      </div>
-    );
-  }
+  }, [query, categoryFilter, initialProcedures, fuse]);
 
   return (
     <div className="space-y-6">
       {/* Category Breakdown Chart */}
-      {categories.length > 0 && (
+      {initialCategories.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Spending by Category
           </h2>
           <div className="rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
             <CategoryBreakdownChart
-              data={categories}
+              data={initialCategories}
               onCategoryClick={(cat) =>
                 setCategoryFilter((prev) => (prev === cat ? "" : cat))
               }
@@ -98,7 +85,7 @@ export function ProcedureSearchClient() {
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           >
             <option value="">All Categories</option>
-            {categories.map((c) => (
+            {initialCategories.map((c) => (
               <option key={c.category} value={c.category}>
                 {c.category} ({c.procedure_count})
               </option>
@@ -108,7 +95,7 @@ export function ProcedureSearchClient() {
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {results.length} result{results.length !== 1 ? "s" : ""}
           {categoryFilter && ` in ${categoryFilter}`} (
-          {formatNumber(allData.length)} total codes)
+          {formatNumber(initialProcedures.length)} total codes)
         </p>
       </div>
       <DataTable<ProcedureIndexEntry>

@@ -15,7 +15,10 @@ export function PageHeader({ title, subtitle, breadcrumbs }: PageHeaderProps) {
   return (
     <div className="mb-6 sm:mb-8">
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="mb-2 flex flex-wrap items-center gap-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-2 flex flex-wrap items-center gap-1 text-xs text-gray-500 dark:text-gray-400 sm:text-sm"
+        >
           {breadcrumbs.map((crumb, i) => (
             <span key={i} className="flex items-center gap-1">
               {i > 0 && <span>/</span>}
@@ -27,7 +30,10 @@ export function PageHeader({ title, subtitle, breadcrumbs }: PageHeaderProps) {
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="text-gray-900 dark:text-gray-100">
+                <span
+                  className="text-gray-900 dark:text-gray-100"
+                  aria-current="page"
+                >
                   {crumb.label}
                 </span>
               )}

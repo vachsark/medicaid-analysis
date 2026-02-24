@@ -9,6 +9,7 @@ import type {
   ProcedureIndexEntry,
   ProcedureProfile,
   ProcedureCategory,
+  SupplementaryData,
 } from "./types";
 
 const BASE = "/data";
@@ -41,3 +42,5 @@ export const fetchProcedureCategories = () =>
   fetchJson<ProcedureCategory[]>("/procedures/categories.json");
 export const fetchProcedureProfile = (code: string) =>
   fetchJson<ProcedureProfile>(`/procedures/${code}.json`);
+export const fetchSupplementary = () =>
+  fetchJson<SupplementaryData>("/supplementary.json");

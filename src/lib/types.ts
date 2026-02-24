@@ -97,6 +97,12 @@ export interface StateIndexEntry {
   provider_count: number;
   avg_per_claim: number;
   yoy_change: number | null;
+  enrollment: number | null;
+  per_enrollee_spending: number | null;
+  managed_care_pct: number | null;
+  ffs_pct: number | null;
+  expanded: boolean | null;
+  expansion_year: number | null;
 }
 
 export interface ClassificationEntry {
@@ -104,6 +110,24 @@ export interface ClassificationEntry {
   total_paid: number;
   total_claims: number;
   provider_count: number;
+}
+
+export interface EnrollmentTrendPoint {
+  year: string;
+  enrollment: number | null;
+  ffs_spending: number | null;
+  per_enrollee: number | null;
+  managed_care_pct: number | null;
+  ffs_pct: number | null;
+}
+
+export interface StateSupplementary {
+  expanded: boolean | null;
+  expansion_year: number | null;
+  managed_care_pct: number | null;
+  ffs_pct: number | null;
+  ffs_caveat: boolean;
+  enrollment_trend: EnrollmentTrendPoint[];
 }
 
 export interface StateDetail {
@@ -117,6 +141,7 @@ export interface StateDetail {
     national_rank: number;
     national_pct: number;
   };
+  supplementary: StateSupplementary;
   yearly: YearlyDataPoint[];
   yoy_growth: YoYGrowth[];
   top_providers: ProviderSummary[];
@@ -126,6 +151,14 @@ export interface StateDetail {
 }
 
 // ── Providers ────────────────────────────────────────────────
+
+export interface MedicareCrosswalk {
+  payment: number;
+  services: number;
+  beneficiaries: number;
+  dual_eligible: number | null;
+  provider_type: string;
+}
 
 export interface ProviderProfile {
   npi: string;
@@ -147,6 +180,7 @@ export interface ProviderProfile {
     total_paid: number;
     total_claims: number;
   }[];
+  medicare: MedicareCrosswalk | null;
 }
 
 export interface ProviderSearchEntry {
@@ -208,4 +242,38 @@ export interface ProcedureProfile {
     total_paid: number;
     total_claims: number;
   }[];
+}
+
+// ── Supplementary ──────────────────────────────────────────
+
+export interface SupplementaryData {
+  data_sources: Record<
+    string,
+    {
+      name: string;
+      url: string;
+      coverage?: string;
+      note?: string;
+      kff_url?: string;
+    }
+  >;
+  national_enrollment: { year: string; total_enrollment: number }[];
+  managed_care_summary: {
+    year: string;
+    states_reporting: number;
+    avg_managed_care_pct: number;
+    min_managed_care_pct: number;
+    max_managed_care_pct: number;
+  }[];
+  expansion_summary: {
+    expanded_count: number;
+    total_states: number;
+    not_expanded: string[];
+  };
+  medicare_overlap: {
+    total_medicare_providers: number;
+    providers_in_both_programs: number;
+    total_medicare_payment: number;
+  } | null;
+  methodology_notes: string[];
 }

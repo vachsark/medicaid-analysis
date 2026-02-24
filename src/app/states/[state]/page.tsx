@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { readJsonFile } from "@/lib/data-server";
 import type { StateDetail, StateIndexEntry } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -17,7 +18,13 @@ export async function generateMetadata({
 }) {
   const { state: code } = await params;
   const data = await readJsonFile<StateDetail>(`/states/${code}.json`);
-  return { title: data.name };
+  const h = data.headline;
+  const desc = `${data.name} Medicaid spending: ${formatCurrency(h.total_paid, true)} across ${formatNumber(h.provider_count)} providers. Ranked #${h.national_rank} nationally (${h.national_pct}% of total).`;
+  return {
+    title: data.name,
+    description: desc,
+    openGraph: { title: `${data.name} — Medicaid Spending`, description: desc },
+  } satisfies Metadata;
 }
 
 export default async function StateDetailPage({

@@ -26,10 +26,10 @@ export function ProcedureDetailCharts({ data }: Props) {
     <div className="space-y-10">
       {yearlyChart.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Yearly Spending Trend
           </h2>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <SpendingTrendChart data={yearlyChart} />
           </div>
         </section>
@@ -37,7 +37,7 @@ export function ProcedureDetailCharts({ data }: Props) {
 
       {data.top_states.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Top States
           </h2>
           <DataTable<StateEntry>
@@ -51,7 +51,7 @@ export function ProcedureDetailCharts({ data }: Props) {
                 label: "State",
                 sortKey: (r) => r.state,
                 render: (r) => (
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
                     {getStateName(r.state)}
                   </span>
                 ),
@@ -91,7 +91,7 @@ export function ProcedureDetailCharts({ data }: Props) {
 
       {data.top_providers.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Top Providers
           </h2>
           <DataTable<ProvEntry>
@@ -106,8 +106,10 @@ export function ProcedureDetailCharts({ data }: Props) {
                 sortKey: (r) => r.name,
                 render: (r) => (
                   <div>
-                    <div className="font-medium text-gray-900">{r.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {r.name}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {getStateName(r.state)}
                     </div>
                   </div>

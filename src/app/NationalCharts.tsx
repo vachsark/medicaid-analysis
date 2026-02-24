@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type {
   NationalData,
@@ -28,21 +28,41 @@ export function NationalCharts({ data }: Props) {
 
   useEffect(() => {
     fetch("/data/providers/anomalies.json")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Anomalies: ${r.status}`);
+        return r.json();
+      })
       .then(setAnomalies)
-      .catch(() => {});
+      .catch((e) => console.error("Failed to load provider anomalies:", e));
     fetch("/data/procedures/categories.json")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Categories: ${r.status}`);
+        return r.json();
+      })
       .then(setCategories)
-      .catch(() => {});
+      .catch((e) => console.error("Failed to load procedure categories:", e));
   }, []);
 
-  const monthlyChart = data.monthly
-    .filter((m) => m.month !== "2024-11" && m.month !== "2024-12")
-    .map((m) => ({
+  // Trim trailing months where claims processing lag makes data incomplete.
+  // Detect by finding months with < 50% of the median spending (sudden drop-off).
+  const monthlyChart = useMemo(() => {
+    if (data.monthly.length === 0) return [];
+    const values = data.monthly.map((m) => m.total_paid);
+    const sorted = [...values].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const threshold = median * 0.5;
+    // Find last month above threshold and trim everything after
+    let lastGoodIdx = values.length - 1;
+    while (lastGoodIdx > 0 && values[lastGoodIdx] < threshold) {
+      lastGoodIdx--;
+    }
+    return data.monthly.slice(0, lastGoodIdx + 1).map((m) => ({
       label: m.month,
       value: m.total_paid,
     }));
+  }, [data.monthly]);
+
+  const trimmedMonths = data.monthly.length - monthlyChart.length;
 
   const yoyChart = data.yoy_growth.map((y) => ({
     year: y.year,
@@ -58,11 +78,14 @@ export function NationalCharts({ data }: Props) {
         </h2>
         <div className="rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
           <SpendingTrendChart data={monthlyChart} height={280} />
-          <p className="mt-3 text-xs text-amber-700 bg-amber-50 rounded px-3 py-2 dark:text-amber-300 dark:bg-amber-950">
-            Note: November and December 2024 have been trimmed from this chart
-            due to claims processing lag — many late-2024 claims had not yet
-            been submitted when this dataset was published (Feb 2026).
-          </p>
+          {trimmedMonths > 0 && (
+            <p className="mt-3 text-xs text-amber-700 bg-amber-50 rounded px-3 py-2 dark:text-amber-300 dark:bg-amber-950">
+              Note: The last {trimmedMonths} month{trimmedMonths > 1 ? "s" : ""}{" "}
+              ha{trimmedMonths > 1 ? "ve" : "s"} been trimmed from this chart
+              due to claims processing lag — recent claims had not yet been
+              fully submitted when this dataset was published.
+            </p>
+          )}
         </div>
       </section>
 
@@ -277,6 +300,14 @@ export function NationalCharts({ data }: Props) {
               },
             ]}
           />
+          <div className="mt-3 text-right">
+            <button
+              onClick={() => router.push("/anomalies/")}
+              className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              View all {anomalies.length} outliers &rarr;
+            </button>
+          </div>
         </section>
       )}
 

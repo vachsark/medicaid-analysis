@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { readJsonFile } from "@/lib/data-server";
 import type { ProviderProfile } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -7,10 +8,20 @@ import { getStateName } from "@/lib/states";
 import { ProviderDetailCharts } from "./ProviderDetailCharts";
 
 export async function generateStaticParams() {
-  const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top5000.json",
+  const npiList = await readJsonFile<string[]>(
+    "/providers/profiles/_index.json",
   );
-  return profiles.map((p) => ({ npi: p.npi }));
+  return npiList.map((npi) => ({ npi }));
+}
+
+async function loadProvider(npi: string): Promise<ProviderProfile | null> {
+  try {
+    return await readJsonFile<ProviderProfile>(
+      `/providers/profiles/${npi}.json`,
+    );
+  } catch {
+    return null;
+  }
 }
 
 export async function generateMetadata({
@@ -19,11 +30,20 @@ export async function generateMetadata({
   params: Promise<{ npi: string }>;
 }) {
   const { npi } = await params;
-  const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top5000.json",
-  );
-  const provider = profiles.find((p) => p.npi === npi);
-  return { title: provider?.name ?? `Provider ${npi}` };
+  const provider = await loadProvider(npi);
+  if (!provider) return { title: `Provider ${npi}` };
+  const location = [
+    provider.city,
+    provider.state && getStateName(provider.state),
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const desc = `${provider.name} (${provider.classification}, ${location}): ${formatCurrency(provider.total_paid, true)} in Medicaid spending across ${formatNumber(provider.total_claims, true)} claims.`;
+  return {
+    title: provider.name,
+    description: desc,
+    openGraph: { title: provider.name, description: desc },
+  } satisfies Metadata;
 }
 
 export default async function ProviderDetailPage({
@@ -32,10 +52,7 @@ export default async function ProviderDetailPage({
   params: Promise<{ npi: string }>;
 }) {
   const { npi } = await params;
-  const profiles = await readJsonFile<ProviderProfile[]>(
-    "/providers/top5000.json",
-  );
-  const provider = profiles.find((p) => p.npi === npi);
+  const provider = await loadProvider(npi);
 
   if (!provider) {
     return (

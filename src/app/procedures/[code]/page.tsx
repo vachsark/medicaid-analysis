@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { readJsonFile } from "@/lib/data-server";
 import type { ProcedureProfile, ProcedureIndexEntry } from "@/lib/types";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -23,7 +24,15 @@ export async function generateMetadata({
     const data = await readJsonFile<ProcedureProfile>(
       `/procedures/${code}.json`,
     );
-    return { title: `${data.code} — ${data.description}` };
+    const desc = `HCPCS ${data.code} (${data.description}): ${formatCurrency(data.total_paid, true)} in Medicaid spending across ${formatNumber(data.total_claims, true)} claims.`;
+    return {
+      title: `${data.code} — ${data.description}`,
+      description: desc,
+      openGraph: {
+        title: `${data.code} — ${data.description}`,
+        description: desc,
+      },
+    } satisfies Metadata;
   } catch {
     return { title: `Procedure ${code}` };
   }
