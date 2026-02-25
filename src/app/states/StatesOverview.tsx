@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { StateIndexEntry } from "@/lib/types";
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
 import { DataTable } from "@/components/ui/DataTable";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 const USChoroplethMap = dynamic(
   () =>
@@ -91,10 +92,18 @@ export function StatesOverview({ states }: Props) {
             Compare States
           </Link>
         </div>
-        <USChoroplethMap
-          data={mapData}
-          onStateClick={(code) => router.push(`/states/${code}/`)}
-        />
+        <ErrorBoundary
+          fallback={
+            <div className="flex aspect-[8/5] items-center justify-center rounded-lg bg-gray-50 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+              Map failed to load. Use the table below to browse states.
+            </div>
+          }
+        >
+          <USChoroplethMap
+            data={mapData}
+            onStateClick={(code) => router.push(`/states/${code}/`)}
+          />
+        </ErrorBoundary>
       </div>
 
       <DataTable<StateIndexEntry>
