@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { ProviderAnomaly } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/lib/format";
@@ -7,16 +8,24 @@ import { DataTable } from "@/components/ui/DataTable";
 
 interface Props {
   anomalies: ProviderAnomaly[];
+  profileNpis: string[];
 }
 
-export function AnomaliesClient({ anomalies }: Props) {
+export function AnomaliesClient({ anomalies, profileNpis }: Props) {
   const router = useRouter();
+
+  const npiSet = useMemo(() => new Set(profileNpis), [profileNpis]);
+  const isRowClickable = useCallback(
+    (r: ProviderAnomaly) => npiSet.has(r.npi),
+    [npiSet],
+  );
 
   return (
     <DataTable<ProviderAnomaly>
       data={anomalies}
       rowKey={(r) => r.npi}
       onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
+      isRowClickable={isRowClickable}
       defaultSortKey="zscore"
       pageSize={25}
       exportFilename="outlier-providers"

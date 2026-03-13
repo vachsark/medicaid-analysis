@@ -33,7 +33,12 @@ export default async function StateDetailPage({
   params: Promise<{ state: string }>;
 }) {
   const { state: code } = await params;
-  const data = await readJsonFile<StateDetail>(`/states/${code}.json`);
+  const [data, profileNpis, procedureIndex] = await Promise.all([
+    readJsonFile<StateDetail>(`/states/${code}.json`),
+    readJsonFile<string[]>("/providers/profiles/_index.json"),
+    readJsonFile<{ code: string }[]>("/procedures/_index.json"),
+  ]);
+  const profileCodes = procedureIndex.slice(0, 500).map((p) => p.code);
   const h = data.headline;
 
   return (
@@ -64,7 +69,11 @@ export default async function StateDetailPage({
         />
       </div>
 
-      <StateDetailCharts data={data} />
+      <StateDetailCharts
+        data={data}
+        profileNpis={profileNpis}
+        profileCodes={profileCodes}
+      />
     </div>
   );
 }

@@ -10,9 +10,10 @@ export const metadata = {
 };
 
 export default async function AnomaliesPage() {
-  const anomalies = await readJsonFile<ProviderAnomaly[]>(
-    "/providers/anomalies.json",
-  );
+  const [anomalies, profileNpis] = await Promise.all([
+    readJsonFile<ProviderAnomaly[]>("/providers/anomalies.json"),
+    readJsonFile<string[]>("/providers/profiles/_index.json"),
+  ]);
 
   return (
     <div>
@@ -31,7 +32,7 @@ export default async function AnomaliesPage() {
         services, or data reporting differences. A high z-score alone does not
         indicate fraud or waste.
       </div>
-      <AnomaliesClient anomalies={anomalies} />
+      <AnomaliesClient anomalies={anomalies} profileNpis={profileNpis} />
     </div>
   );
 }

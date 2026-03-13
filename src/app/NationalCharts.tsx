@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type {
   NationalData,
@@ -19,12 +19,25 @@ import { ProcedureTooltip } from "@/components/ui/ProcedureTooltip";
 
 interface Props {
   data: NationalData;
+  profileNpis: string[];
+  profileCodes: string[];
 }
 
-export function NationalCharts({ data }: Props) {
+export function NationalCharts({ data, profileNpis, profileCodes }: Props) {
   const router = useRouter();
   const [anomalies, setAnomalies] = useState<ProviderAnomaly[]>([]);
   const [categories, setCategories] = useState<ProcedureCategory[]>([]);
+
+  const npiSet = useMemo(() => new Set(profileNpis), [profileNpis]);
+  const codeSet = useMemo(() => new Set(profileCodes), [profileCodes]);
+  const isProviderClickable = useCallback(
+    (r: { npi: string }) => npiSet.has(r.npi),
+    [npiSet],
+  );
+  const isProcedureClickable = useCallback(
+    (r: { code: string }) => codeSet.has(r.code),
+    [codeSet],
+  );
 
   useEffect(() => {
     fetch("/data/providers/anomalies.json")
@@ -108,6 +121,7 @@ export function NationalCharts({ data }: Props) {
           data={data.top_providers.slice(0, 10)}
           rowKey={(r) => r.npi}
           onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
+          isRowClickable={isProviderClickable}
           defaultSortKey="total_paid"
           exportFilename="national-providers"
           columns={[
@@ -171,6 +185,7 @@ export function NationalCharts({ data }: Props) {
           data={data.top_procedures.slice(0, 10)}
           rowKey={(r) => r.code}
           onRowClick={(r) => router.push(`/procedures/${r.code}/`)}
+          isRowClickable={isProcedureClickable}
           defaultSortKey="total_paid"
           exportFilename="national-procedures"
           columns={[
@@ -245,6 +260,7 @@ export function NationalCharts({ data }: Props) {
             data={anomalies.slice(0, 20)}
             rowKey={(r) => r.npi}
             onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
+            isRowClickable={isProviderClickable}
             defaultSortKey="zscore"
             exportFilename="outlier-providers"
             columns={[

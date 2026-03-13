@@ -52,7 +52,11 @@ export default async function ProviderDetailPage({
   params: Promise<{ npi: string }>;
 }) {
   const { npi } = await params;
-  const provider = await loadProvider(npi);
+  const [provider, procedureIndex] = await Promise.all([
+    loadProvider(npi),
+    readJsonFile<{ code: string }[]>("/procedures/_index.json"),
+  ]);
+  const profileCodes = procedureIndex.slice(0, 500).map((p) => p.code);
 
   if (!provider) {
     return (
@@ -112,7 +116,7 @@ export default async function ProviderDetailPage({
         <StatCard label="NPI" value={provider.npi} />
       </div>
 
-      <ProviderDetailCharts provider={provider} />
+      <ProviderDetailCharts provider={provider} profileCodes={profileCodes} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useProviderSearch } from "@/hooks/useProviderSearch";
 import { VALID_STATE_CODES, getStateName } from "@/lib/states";
@@ -7,7 +8,11 @@ import { formatCurrency, formatNumber } from "@/lib/format";
 import type { ProviderSearchEntry } from "@/lib/types";
 import { DataTable } from "@/components/ui/DataTable";
 
-export function ProviderSearchClient() {
+interface Props {
+  profileNpis: string[];
+}
+
+export function ProviderSearchClient({ profileNpis }: Props) {
   const router = useRouter();
   const {
     query,
@@ -19,13 +24,19 @@ export function ProviderSearchClient() {
     totalProviders,
   } = useProviderSearch();
 
+  const npiSet = useMemo(() => new Set(profileNpis), [profileNpis]);
+  const isRowClickable = useCallback(
+    (r: ProviderSearchEntry) => npiSet.has(r.npi),
+    [npiSet],
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={stateFilter}
           onChange={(e) => setStateFilter(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
         >
           <option value="">All States (Top 5,000)</option>
           {VALID_STATE_CODES.sort().map((code) => (
@@ -39,7 +50,7 @@ export function ProviderSearchClient() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by provider name or NPI..."
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
         />
       </div>
 
@@ -51,7 +62,7 @@ export function ProviderSearchClient() {
 
       {!loading && (
         <>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {results.length} result{results.length !== 1 ? "s" : ""}
             {stateFilter && ` in ${getStateName(stateFilter)}`}
             {totalProviders > 0 && ` (${formatNumber(totalProviders)} total)`}
@@ -60,6 +71,7 @@ export function ProviderSearchClient() {
             data={results}
             rowKey={(r) => r.npi}
             onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
+            isRowClickable={isRowClickable}
             defaultSortKey="total_paid"
             pageSize={25}
             exportFilename="providers"
@@ -70,8 +82,10 @@ export function ProviderSearchClient() {
                 sortKey: (r) => r.name,
                 render: (r) => (
                   <div>
-                    <div className="font-medium text-gray-900">{r.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                      {r.name}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {r.classification}
                     </div>
                   </div>

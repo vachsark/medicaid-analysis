@@ -38,6 +38,7 @@ export function CompareClient({ states }: Props) {
     {},
   );
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -59,6 +60,7 @@ export function CompareClient({ states }: Props) {
     if (missing.length === 0) return;
 
     setLoading(true);
+    setError(null);
     Promise.all(missing.map((code) => fetchStateDetail(code)))
       .then((results) => {
         setStateDetails((prev) => {
@@ -68,6 +70,9 @@ export function CompareClient({ states }: Props) {
           }
           return next;
         });
+      })
+      .catch(() => {
+        setError("Failed to load state data. Please try again.");
       })
       .finally(() => setLoading(false));
   }, [selectedCodes, stateDetails]);
@@ -217,6 +222,12 @@ export function CompareClient({ states }: Props) {
           )}
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+          {error}
+        </div>
+      )}
 
       {loading && (
         <div className="py-12 text-center text-gray-500">

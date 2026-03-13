@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { ProviderProfile } from "@/lib/types";
 import { formatCurrency, formatNumber } from "@/lib/format";
@@ -8,12 +9,19 @@ import { DataTable } from "@/components/ui/DataTable";
 
 interface Props {
   provider: ProviderProfile;
+  profileCodes: string[];
 }
 
 type ProcEntry = ProviderProfile["top_procedures"][number];
 
-export function ProviderDetailCharts({ provider }: Props) {
+export function ProviderDetailCharts({ provider, profileCodes }: Props) {
   const router = useRouter();
+
+  const codeSet = useMemo(() => new Set(profileCodes), [profileCodes]);
+  const isProcedureClickable = useCallback(
+    (r: ProcEntry) => codeSet.has(r.code),
+    [codeSet],
+  );
 
   const yearlyChart = provider.yearly.map((y) => ({
     label: y.year,
@@ -127,6 +135,7 @@ export function ProviderDetailCharts({ provider }: Props) {
             data={provider.top_procedures}
             rowKey={(r) => r.code}
             onRowClick={(r) => router.push(`/procedures/${r.code}/`)}
+            isRowClickable={isProcedureClickable}
             defaultSortKey="total_paid"
             columns={[
               {

@@ -7,7 +7,12 @@ import { NationalCharts } from "./NationalCharts";
 import { DATA_URL } from "@/lib/constants";
 
 export default async function HomePage() {
-  const data = await readJsonFile<NationalData>("/national.json");
+  const [data, profileNpis, procedureIndex] = await Promise.all([
+    readJsonFile<NationalData>("/national.json"),
+    readJsonFile<string[]>("/providers/profiles/_index.json"),
+    readJsonFile<{ code: string }[]>("/procedures/_index.json"),
+  ]);
+  const profileCodes = procedureIndex.slice(0, 500).map((p) => p.code);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -101,7 +106,11 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <NationalCharts data={data} />
+        <NationalCharts
+          data={data}
+          profileNpis={profileNpis}
+          profileCodes={profileCodes}
+        />
       </div>
     </>
   );

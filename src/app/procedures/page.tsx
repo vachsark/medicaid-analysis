@@ -13,6 +13,8 @@ export default async function ProceduresPage() {
     ),
   ]);
 
+  const profileCodes = procedures.slice(0, 500).map((p) => p.code);
+
   return (
     <div>
       <PageHeader
@@ -23,6 +25,7 @@ export default async function ProceduresPage() {
       <ProcedureSearchClient
         initialProcedures={procedures}
         initialCategories={categories}
+        profileCodes={profileCodes}
       />
     </div>
   );

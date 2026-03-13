@@ -1,9 +1,14 @@
+import { readJsonFile } from "@/lib/data-server";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProviderSearchClient } from "./ProviderSearchClient";
 
 export const metadata = { title: "Providers" };
 
-export default function ProvidersPage() {
+export default async function ProvidersPage() {
+  const profileNpis = await readJsonFile<string[]>(
+    "/providers/profiles/_index.json",
+  );
+
   return (
     <div>
       <PageHeader
@@ -11,7 +16,7 @@ export default function ProvidersPage() {
         subtitle="Search 617K+ Medicaid providers by name or NPI"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Providers" }]}
       />
-      <ProviderSearchClient />
+      <ProviderSearchClient profileNpis={profileNpis} />
     </div>
   );
 }

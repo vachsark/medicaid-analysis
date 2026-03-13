@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import type { ProcedureIndexEntry, ProcedureCategory } from "@/lib/types";
@@ -19,15 +19,23 @@ const FUSE_OPTIONS = {
 interface Props {
   initialProcedures: ProcedureIndexEntry[];
   initialCategories: ProcedureCategory[];
+  profileCodes: string[];
 }
 
 export function ProcedureSearchClient({
   initialProcedures,
   initialCategories,
+  profileCodes,
 }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+
+  const codeSet = useMemo(() => new Set(profileCodes), [profileCodes]);
+  const isRowClickable = useCallback(
+    (r: ProcedureIndexEntry) => codeSet.has(r.code),
+    [codeSet],
+  );
 
   const fuse = useMemo(
     () =>
@@ -102,6 +110,7 @@ export function ProcedureSearchClient({
         data={results}
         rowKey={(r) => r.code}
         onRowClick={(r) => router.push(`/procedures/${r.code}/`)}
+        isRowClickable={isRowClickable}
         defaultSortKey="total_paid"
         pageSize={25}
         exportFilename="procedures"

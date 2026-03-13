@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type {
   StateDetail,
@@ -16,10 +17,23 @@ import { ProcedureTooltip } from "@/components/ui/ProcedureTooltip";
 
 interface Props {
   data: StateDetail;
+  profileNpis: string[];
+  profileCodes: string[];
 }
 
-export function StateDetailCharts({ data }: Props) {
+export function StateDetailCharts({ data, profileNpis, profileCodes }: Props) {
   const router = useRouter();
+
+  const npiSet = useMemo(() => new Set(profileNpis), [profileNpis]);
+  const codeSet = useMemo(() => new Set(profileCodes), [profileCodes]);
+  const isProviderClickable = useCallback(
+    (r: { npi: string }) => npiSet.has(r.npi),
+    [npiSet],
+  );
+  const isProcedureClickable = useCallback(
+    (r: { code: string }) => codeSet.has(r.code),
+    [codeSet],
+  );
 
   const yearlyChart = data.yearly.map((y) => ({
     label: y.year,
@@ -141,6 +155,7 @@ export function StateDetailCharts({ data }: Props) {
           data={data.top_providers}
           rowKey={(r) => r.npi}
           onRowClick={(r) => router.push(`/providers/${r.npi}/`)}
+          isRowClickable={isProviderClickable}
           defaultSortKey="total_paid"
           exportFilename={`${data.name.toLowerCase().replace(/\s+/g, "-")}-providers`}
           columns={[
@@ -195,6 +210,7 @@ export function StateDetailCharts({ data }: Props) {
           data={data.top_procedures}
           rowKey={(r) => r.code}
           onRowClick={(r) => router.push(`/procedures/${r.code}/`)}
+          isRowClickable={isProcedureClickable}
           defaultSortKey="total_paid"
           exportFilename={`${data.name.toLowerCase().replace(/\s+/g, "-")}-procedures`}
           columns={[

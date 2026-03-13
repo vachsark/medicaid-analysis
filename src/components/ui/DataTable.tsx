@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 
 interface Column<T> {
   key: string;
@@ -20,6 +20,8 @@ interface DataTableProps<T> {
   defaultSortKey?: string;
   defaultSortDir?: "asc" | "desc";
   onRowClick?: (row: T) => void;
+  /** When provided, only rows where this returns true get click/hover styling */
+  isRowClickable?: (row: T) => boolean;
   rowKey: (row: T) => string;
   /** When provided, shows an "Export CSV" button and uses this as the download filename (without .csv) */
   exportFilename?: string;
@@ -39,12 +41,18 @@ export function DataTable<T>({
   defaultSortKey,
   defaultSortDir = "desc",
   onRowClick,
+  isRowClickable,
   rowKey,
   exportFilename,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState(defaultSortKey ?? columns[0]?.key);
   const [sortDir, setSortDir] = useState<"asc" | "desc">(defaultSortDir);
+
+  // Reset page when data changes (e.g. filter/search updates)
+  useEffect(() => {
+    setPage(0);
+  }, [data]);
 
   const sorted = useMemo(() => {
     const col = columns.find((c) => c.key === sortKey);
@@ -142,46 +150,50 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950">
-            {pageData.map((row) => (
-              <tr
-                key={rowKey(row)}
-                className={
-                  onRowClick
-                    ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 focus-within:bg-gray-50 dark:focus-within:bg-gray-900"
-                    : ""
-                }
-                onClick={() => onRowClick?.(row)}
-                onKeyDown={
-                  onRowClick
-                    ? (e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          onRowClick(row);
+            {pageData.map((row) => {
+              const clickable =
+                onRowClick && (!isRowClickable || isRowClickable(row));
+              return (
+                <tr
+                  key={rowKey(row)}
+                  className={
+                    clickable
+                      ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 focus-within:bg-gray-50 dark:focus-within:bg-gray-900"
+                      : ""
+                  }
+                  onClick={clickable ? () => onRowClick(row) : undefined}
+                  onKeyDown={
+                    clickable
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onRowClick(row);
+                          }
                         }
-                      }
-                    : undefined
-                }
-                tabIndex={onRowClick ? 0 : undefined}
-                role={onRowClick ? "button" : undefined}
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={`px-3 py-2.5 text-sm sm:px-4 sm:py-3 ${
-                      col.align === "right"
-                        ? "text-right tabular-nums whitespace-nowrap"
-                        : "text-left"
-                    } ${col.className ?? ""} ${col.hideOnMobile ? "hidden sm:table-cell" : ""}`}
-                  >
-                    {col.render
-                      ? col.render(row)
-                      : ((row as Record<string, unknown>)[
-                          col.key
-                        ] as React.ReactNode)}
-                  </td>
-                ))}
-              </tr>
-            ))}
+                      : undefined
+                  }
+                  tabIndex={clickable ? 0 : undefined}
+                  role={clickable ? "button" : undefined}
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={`px-3 py-2.5 text-sm sm:px-4 sm:py-3 ${
+                        col.align === "right"
+                          ? "text-right tabular-nums whitespace-nowrap"
+                          : "text-left"
+                      } ${col.className ?? ""} ${col.hideOnMobile ? "hidden sm:table-cell" : ""}`}
+                    >
+                      {col.render
+                        ? col.render(row)
+                        : ((row as Record<string, unknown>)[
+                            col.key
+                          ] as React.ReactNode)}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -44,6 +44,9 @@ export default async function ProcedureDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
+  const profileNpis = await readJsonFile<string[]>(
+    "/providers/profiles/_index.json",
+  );
 
   let data: ProcedureProfile;
   try {
@@ -99,7 +102,7 @@ export default async function ProcedureDetailPage({
         />
       </div>
 
-      <ProcedureDetailCharts data={data} />
+      <ProcedureDetailCharts data={data} profileNpis={profileNpis} />
     </div>
   );
 }

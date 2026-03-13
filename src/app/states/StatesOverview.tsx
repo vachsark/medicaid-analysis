@@ -79,7 +79,7 @@ export function StatesOverview({ states }: Props) {
               className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                 metric === key
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
               {label}
@@ -119,7 +119,9 @@ export function StatesOverview({ states }: Props) {
             label: "State",
             sortKey: (r) => r.name,
             render: (r) => (
-              <span className="font-medium text-gray-900">{r.name}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {r.name}
+              </span>
             ),
           },
           {

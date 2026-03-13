@@ -38,16 +38,17 @@ async function loadSearchData(): Promise<SearchItem[]> {
       type: "state",
       label: s.name,
       sublabel: `${s.code} — ${formatUSD(s.total_paid)}`,
-      href: `/states/${s.code}`,
+      href: `/states/${s.code}/`,
     });
   }
 
-  for (const p of procedures) {
+  // Only include top 500 procedures (those with detail pages)
+  for (const p of procedures.slice(0, 500)) {
     items.push({
       type: "procedure",
       label: `${p.code} — ${p.description}`,
       sublabel: formatUSD(p.total_paid),
-      href: `/procedures/${p.code}`,
+      href: `/procedures/${p.code}/`,
     });
   }
 
@@ -56,7 +57,7 @@ async function loadSearchData(): Promise<SearchItem[]> {
       type: "provider",
       label: p.name,
       sublabel: `${p.classification} — ${formatUSD(p.total_paid)}`,
-      href: `/providers/${p.npi}`,
+      href: `/providers/${p.npi}/`,
     });
   }
 
